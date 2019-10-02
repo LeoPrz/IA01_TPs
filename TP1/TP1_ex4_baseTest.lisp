@@ -1,5 +1,5 @@
 (setq BaseTest
-    ‘(
+    '(
         (
             "Campagnes de Clovis Ier"
             486
