@@ -19,9 +19,9 @@
             )
             (
                 "Soissons"
-                "Zülpich"
+                "Zulpich"
                 "Dijon"
-                "Vouillé"
+                "Vouille"
                 "Arles"
             )
         )
@@ -43,7 +43,7 @@
             )
         )
         (
-            "Conquête de la Thuringe"
+            "Conquete de la Thuringe"
             531
             531
             (
@@ -87,11 +87,11 @@
                 )
             )
             (
-                "Alémanie"
+                "Alemanie"
             )
         )
         (
-            "Conquête de la Bavière"
+            "Conquete de la Baviere"
             555
             555
             (
@@ -103,7 +103,7 @@
                 )
             )
             (
-                "Bavière"
+                "Baviere"
             )
         )
         (
@@ -295,7 +295,7 @@
                     "Francie orientale"
                 )
                 (
-                    "Francie médiane"
+                    "Francie mediane"
                 )
             )
             (
@@ -336,7 +336,7 @@
             (
                 "Ardennes"
                 "Saône-et-Loire"
-                "Rhénanie-Palatinat"
+                "Rhenanie-Palatinat"
                 "Aisne"
             )
         )
@@ -358,25 +358,25 @@
             )
         )
         (
-            "Première croisade"
+            "Premiere croisade"
             1096
             1099
             (
                 (
-                    "Comté de Blois"
-                    "Comté de Toulouse"
-                    "Comté de Boulogne"
+                    "Comte de Blois"
+                    "Comte de Toulouse"
+                    "Comte de Boulogne"
                     "Marquisat de Provence"
-                    "Comté de Flandre"
-                    "Duché de Normandie"
-                    "Diocèse du Puy-en-Velay"
-                    "Comté de Vermandois"
-                    "République de Gênes"
-                    "Duché de Basse-Lotharingie"
-                    "Principauté de Tarente"
+                    "Comte de Flandre"
+                    "Duche de Normandie"
+                    "Diocese du Puy-en-Velay"
+                    "Comte de Vermandois"
+                    "Republique de Genes"
+                    "Duche de Basse-Lotharingie"
+                    "Principaute de Tarente"
                     "Empire byzantin"
-                    "Royaume de Petite-Arménie"
-                    "Croisés"
+                    "Royaume de Petite-Armenie"
+                    "Croises"
                     "Royaume de France"
                 )
                 (
@@ -390,3 +390,71 @@
         )
     )
 )
+
+(defun dateDebut (conflit)
+    (cadr conflit)
+)
+
+(defun nomConflit (conflit)
+    (car conflit)
+)
+
+(defun allies (conflit)
+    (car (cadddr conflit))
+)
+
+(defun ennemis (conflit)
+    (cadr (cadddr conflit))
+)
+
+(defun lieu (conflit)
+    (nthcdr 4 conflit)
+)
+
+(defun FB1 (conflits)
+    (dolist (x conflits NIL)
+        (print (nomConflit x))
+    )
+)
+
+;(FB1 BaseTest)
+
+(defun FB2 (conflits)
+  (dolist (x conflits NIL)
+    (if (not (equal (member "Royaume franc" (allies x) :test #'string=) NIL)) (print (nomConflit x))
+      NIL
+    )
+  )
+)
+
+;(FB2 BaseTest)
+
+(defun FB3 (conflits a)
+  (dolist (x conflits NIL)
+    (if (not (equal (member a (allies x) :test #'string=) NIL)) (print (nomConflit x))
+      NIL
+    )
+  )
+)
+
+;(FB3 BaseTest "Royaume franc")
+
+(defun FB4 (conflits)
+  (dolist (x conflits NIL)
+    (if (equal 523 (dateDebut x)) (print (nomConflit x))
+      NIL
+    )
+  )
+)
+
+;(FB4 BaseTest)
+
+(defun FB5 (conflits)
+  (dolist (x conflits NIL)
+    (if (and (>= (dateDebut x) 523) (<= 715 (dateDebut x))) (print (nomConflit x))
+      NIL
+    )
+  )
+)
+
+;(FB5 BaseTest)

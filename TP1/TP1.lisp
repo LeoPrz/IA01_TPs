@@ -56,7 +56,7 @@
 ; EXO 3 -------------------------------------------------
 
 (defun my-assoc (cle l)
-  (dolist (x l nil)
+  (dolist (x l NIL)
     (if (eq (car x) cle) (print x) NIL)
   )
 )
@@ -79,28 +79,3 @@
 )
 
 ;(write (creation '(Yolande Pierre Julie) '(25 22 45)))
-
-; EXO 4 -------------------------------------------------
-; (A) cf. TP1_ex4_baseTest.lisp
-
-; (B)
-
-(defun dateDebut (conflit)
-    (cadr conflit)
-)
-
-(defun nomConflit (conflit)
-    (car conflit)
-)
-
-(defun allies (conflit)
-    (car (cadddr conflit))
-)
-
-(defun ennemis (conflit)
-    (cadr (cadddr conflit))
-)
-
-(defun lieu (conflit)
-    (nthcdr 4 conflit)
-)
