@@ -31,14 +31,21 @@
 
 ;(write (palindrome '(x a m a x) ))
 
-(defun monEqual (L1 L2)
-  (
-    if (eq (list L1) (list L2)) T
-    NIL
-  )
-)
+;eq est l'égalité des pointeurs & equal est l'égalité des symboles aux feuilles de l'objets
+;On utilise pas eq pour les nombres et caractères
 
-;(write (monEqual 'LUC 'DANIEL))
+(defun monEqual (X1 X2)
+(if (and (eq X1 NIL) (eq X2 NIL)) NIL
+  (if (and (listp X1) (listp X2))
+    (if (eq (car X1) (car X2)) (monEqual (cdr X1) (cdr X2))
+      NIl
+    )
+    (if (eq X1 X2) T
+      NIL)
+  )
+))
+
+;(write (monEqual '(d p f t r) '(d p f t r)))
 
 ; EXO 2 -------------------------------------------------
 
