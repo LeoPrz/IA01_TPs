@@ -391,6 +391,7 @@
     )
 )
 
+
 (defun dateDebut (conflit)
     (cadr conflit)
 )
@@ -421,7 +422,8 @@
 
 (defun FB2 (conflits)
   (dolist (x conflits NIL)
-    (if (not (equal (member "Royaume franc" (allies x) :test #'string=) NIL)) (print (nomConflit x))
+    (if (not (equal (member "Royaume franc" (allies x) :test #'string=) NIL))
+      (print (nomConflit x))
       NIL
     )
   )
@@ -431,7 +433,8 @@
 
 (defun FB3 (conflits a)
   (dolist (x conflits NIL)
-    (if (not (equal (member a (allies x) :test #'string=) NIL)) (print (nomConflit x))
+    (if (not (equal (member a (allies x) :test #'string=) NIL))
+      (print (nomConflit x))
       NIL
     )
   )
@@ -441,7 +444,8 @@
 
 (defun FB4 (conflits)
   (dolist (x conflits NIL)
-    (if (equal 523 (dateDebut x)) (print (nomConflit x))
+    (if (equal 523 (dateDebut x))
+      (print (nomConflit x))
       NIL
     )
   )
@@ -451,10 +455,24 @@
 
 (defun FB5 (conflits)
   (dolist (x conflits NIL)
-    (if (and (>= (dateDebut x) 523) (<= 715 (dateDebut x))) (print (nomConflit x))
+    (if (and (>= (dateDebut x) 523) (<= 715 (dateDebut x)))
+      (print (nomConflit x))
       NIL
     )
   )
 )
 
 ;(FB5 BaseTest)
+
+(defun FB6 (conflits)
+  (setf result 0)
+  (dolist (x conflits NIL)
+    (if (not (equal (member "Lombards" (ennemis x) :test #'string=) NIL))
+      (incf result)
+      NIL
+    )
+  )
+  (print result)
+)
+
+(FB6 BaseTest)
