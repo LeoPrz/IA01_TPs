@@ -458,3 +458,13 @@
 )
 
 ;(FB5 BaseTest)
+
+(defun FB6 (conflits)
+  (length (ennemis "Lombards"))
+)
+
+;(write (FB6 BaseTest))
+
+;(ennemis ("Guerre de Burgondie" 523 533 (("Royaume Franc") ("Royaume des Burgondes")) ("Vezeronce" "Arles")))
+
+(write (ennemis '("Guerre de Burgondie" 523 533 (("Royaume Franc") ("Royaume des Burgondes")) ("Vezeronce" "Arles"))))
