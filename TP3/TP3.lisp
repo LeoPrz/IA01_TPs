@@ -24,11 +24,120 @@
   (R18 ((boisson vin) (animal chien)) (valeur justice))
   (R19 ((milieu bourgeois) (boisson vin)) (valeur sagesse))
   (R20 ((milieu bourgeois) (type introverti)) (valeur sagesse))
-
 ))
 
-; Les valeurs de Poufsouffle sont la loyauté, la patience, la gentillesse, la modestie, le travail acharné, le fair-play, la persévérance la justice, la sincérité,, la tolérance, et l'amour de la nature.
-; Si vous êtes sage et réfléchi, Serdaigle vous accueillera peut-être, Là-bas, ce sont des érudits, Qui ont envie de tout connaître.
+; BASE DE FAITS
+(setq *BF* nil)
 
-; début de base de règle
-; il faut ajouter des règles et prolonger l'arbre
+; BASE DE BUTS (Utile pour le chainage arrière)
+(setq *BB* nil)
+
+; ETATS FINAUX
+(setq *EF* '(
+  (maison Gryffondor)
+  (maison Serpentard)
+  (maison Poufsouffle)
+  (maison Serdaigle)
+))
+
+
+; Pour construire nos moteurs ici, nous avons besoins de certaines fonctions intermédiaires
+
+; -- PREMISSE D'UNE REGLE --
+(defun premisses (idRegle)
+  (cadr (assoc idRegle *BR*))
+)
+
+; -- BUT D'UNE REGLE --
+(defun but (idRegle)
+  (caddr (assoc idRegle *BR*))
+)
+
+; -- CUSTOM MEMBER -- La fonction member ne permet pas de vérifier qu'une liste est à l'intérieur d'une liste
+(defun custom_member (item L)
+  (let ((result nil))
+  (dolist (x L result)
+    (if (and (eq (car item) (car x)) (eq (cadr item) (cadr x))) ; eq ne nous permet pas de tester l'égalité des listes -> On suppose ici que tout nos items sont de la forme (car cadr)
+     (setq result t))
+  ))
+)
+
+
+; -- PRESENCE DES PREMISSES DANS LA BASE DE FAITS --
+(defun presence_premisses_BF (premisses)
+  (let ((presence t))
+  (dolist (x premisses presence)
+    (if (not (custom_member x *BF*)) (setq presence nil)) ; Si une des premisse n'est pas dans la BF alors on va renvoyer nil
+  ))
+)
+
+; -- PRESENCE DU BUT DANS LA BASE DE BUTS
+(defun presence_but_BB (but)
+  (custom_member but *BB*)
+)
+
+; -- MOTEUR AVANT --
+
+; -- REGLES CANDIDATES --
+(defun regles_candidates_avant ()
+  (let ((candidates nil))
+  (dolist (regle *BR* candidates)
+    (let ((idRegle (car regle)))
+    (if (and (not (custom_member (but idRegle) *BF*)) (presence_premisses_BF (premisses idRegle))) ; La regle est candidate si les premisses sont dans la BF mais pas le but de la règle
+      (push regle candidates))
+    )
+  ))
+)
+
+; -- UPDATE BASE DE FAITS --
+(defun update_BF ()
+  (dolist (x (regles_candidates_avant) nil)
+    (if (not (custom_member (but x) *BF*))
+    (push (but (car x)) *BF*)) ; Attention x est ici une règle, pour avoir son id il faut faire (car x)
+  )
+)
+
+; -- RESULTATS CHOIXPEAUX --
+(defun choix_choixpeaux ()
+  (let ((choix nil))
+  (dolist (x *BF* choix)
+    (if (custom_member x *EF*)
+      (push x choix))
+  ))
+)
+
+; -- MOTEUR --
+(defun moteur_avant ()
+  (let ((choix (choix_choixpeaux)))
+  (cond
+  ((not (eq nil choix)) (format t "Pour vous ce sera ~A !" (car (cdar choix))))
+
+  ; Si pas encore d'EF dans BF
+  ((eq nil (regles_candidates_avant))
+    ; Cas où le chapeux n'a pas de réponse -> L'élève ne peut pas intégrer Poudlard
+    (format t "Vous ne pouvez pas intégrer Poudlard, rejoignez Voldemort !"))
+  ; Sinon on rappelle le moteur
+  (t (update_BF) (moteur_avant))
+  ))
+)
+
+; -- MOTEUR ARRIERE --
+
+
+
+
+; -- SCENARIOS AVANT -- A retirer par la suite quand on proposera à l'utilisateur de répondre aux questions
+
+(defun scenario1 ()
+  (setq *BF* '(
+    (karma oui)
+    (animal chien)
+    (boisson biere)
+    (fetard non)
+    (type extraverti)
+    (naturel adroit)
+    (milieu populaire)
+  ))
+  (moteur_avant))
+
+(scenario1)
