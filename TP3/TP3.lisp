@@ -71,11 +71,6 @@
   ))
 )
 
-; -- PRESENCE DU BUT DANS LA BASE DE BUTS
-(defun presence_but_BB (but)
-  (custom_member but *BB*)
-)
-
 ; -- MOTEUR AVANT --
 
 ; -- REGLES CANDIDATES --
@@ -123,6 +118,62 @@
 
 ; -- MOTEUR ARRIERE --
 
+(defun but_atteignables () ; Si un fait de la BF n'est pas dans la BB alors les buts ne sont pas atteignables, il faut decendre plus profond
+  (let ((atteignables t))
+  (dolist (x *BB* atteignables)
+    (if (not (custom_member x *BF*))
+      (setq atteignables nil))
+  ))
+)
+
+; -- PRESENCE DES PREMISSES DANS LA BASE DE BUTS --
+(defun presence_premisses_BB (premisses)
+  (let ((presence t))
+  (dolist (x premisses presence)
+    (if (not (custom_member x *BB*)) (setq presence nil)) ; Si une des premisse n'est pas dans la BF alors on va renvoyer nil
+  ))
+)
+
+(defun regles_candidates_arriere () ; Une règle est candidates arrière si son but est dans la BB
+  (let ((candidates nil))
+  (dolist (regle *BR* candidates)
+    (let ((idRegle (car regle)))
+    (if (custom_member (but idRegle) *BB*)
+      (push regle candidates)))
+  ))
+)
+
+(defun update_BB ()
+  (dolist (r (regles_candidates_arriere) nil)
+    (dolist (p (premisses (car r)) nil)
+      (if (not (custom_member p *BB*))
+        (push p *BB*))
+    )
+  )
+)
+
+(defun moteur_arriere (maison)
+  (let ((bon_choix nil))
+  (push maison *BB*) ; La base de buts contient la maison à tester qui nous interesse
+  (cond
+    ((but_atteignables)
+      (format t "Vous avez fait le bon choix en choisissant ~A ! " maison))
+    ((eq (regles_candidates_arriere) nil) ; Si le moteur arrière est bloqué
+      (format t "Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond." maison))
+    (t
+      (loop
+        (update_BB)
+        (format t "Oupsi : ~A" *BB*)
+        (cond
+          ((but_atteignables)
+            (format t "Vous avez fait le bon choix en choisissant ~A ! " maison))
+          ((eq (regles_candidates_arriere) nil) ; Si le moteur arrière est bloqué
+            (format t "Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond." maison))
+          (t nil))
+      (when (or (but_atteignables) (eq (regles_candidates_arriere) nil)) (return t))))
+    ))
+)
+
 
 
 
@@ -138,6 +189,8 @@
     (naturel adroit)
     (milieu populaire)
   ))
-  (moteur_avant))
+  (push '(maison Poufsouffle) *BB*)
+  (write (regles_candidates_arriere)))
+  ;(moteur_arriere '(maison Poufsouffle)))
 
 (scenario1)
