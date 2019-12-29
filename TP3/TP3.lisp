@@ -6,24 +6,24 @@
   (R4 ((valeur sagesse) (sortilege Legilimens)) (maison Serdaigle))
 
   (R5 ((naturel curieux) (boisson biere)) (qualite courage))
-  (R6 ((karma oui) (boisson eau)) (qualite courage))
-  (R7 ((naturel adroit)) (qualite malice))
-  (R8 ((karma oui) (boisson vin)) (qualite malice))
+  ;(R6 ((karma oui) (milieu populaire)) (qualite courage))
+  (R7 ((naturel adroit) (wtf pute)) (qualite malice))
+  ;(R8 ((karma oui) (boisson vin)) (qualite malice))
 
   (R9 ((valeur justice) (fetard oui)) (sortilege Expelliarmus))
-  (R10 ((naturel curieux) (fetard oui)) (sortilege Expelliarmus))
+  ;(R10 ((naturel curieux) (fetard oui)) (sortilege Expelliarmus))
   (R11 ((animal chat) (type introverti)) (sortilege Legilimens))
-  (R12 ((animal chat) (boisson vin)) (sortilege Legilimens))
+  ;(R12 ((animal chat) (boisson vin)) (sortilege Legilimens))
 
   (R13 ((animal chien) (karma non)) (temperament bagarreur))
-  (R14 ((boisson biere) (fetard oui)) (temperament bagarreur))
+  ;(R14 ((boisson biere) (fetard oui)) (temperament bagarreur))
   (R15 ((milieu populaire) (fetard non)) (temperament travailleur))
-  (R16 ((boisson eau) (fetard non)) (temperament travailleur))
+  ;(R16 ((boisson eau) (fetard non)) (temperament travailleur))
 
   (R17 ((karma oui) (type extraverti)) (valeur justice))
-  (R18 ((boisson vin) (animal chien)) (valeur justice))
+  ;(R18 ((boisson vin) (animal chien)) (valeur justice))
   (R19 ((milieu bourgeois) (boisson vin)) (valeur sagesse))
-  (R20 ((milieu bourgeois) (type introverti)) (valeur sagesse))
+  ;(R20 ((milieu bourgeois) (type introverti)) (valeur sagesse))
 ))
 
 ; BASE DE FAITS
@@ -69,11 +69,6 @@
   (dolist (x premisses presence)
     (if (not (custom_member x *BF*)) (setq presence nil)) ; Si une des premisse n'est pas dans la BF alors on va renvoyer nil
   ))
-)
-
-; -- PRESENCE DU BUT DANS LA BASE DE BUTS
-(defun presence_but_BB (but)
-  (custom_member but *BB*)
 )
 
 ; -- MOTEUR AVANT --
@@ -123,22 +118,80 @@
 
 ; -- MOTEUR ARRIERE --
 
+(defun but_atteignable (b) ; Un but est atteignable si ses premisses sont dans la BB
+  (let ((atteignables t) (idRegle nil))
+  (dolist (x *BR* nil)
+    (if (eq (cadr (but (car x))) (cadr b)) ; On va chercher la règle qui correspond au but
+      (setq idRegle (car x))) ; On sauvegarde son id
+  )
+  (dolist (x (premisses idRegle) atteignables) ; Pour chaque premisses de la règle concernant le but à atteindre
+    (if (not (custom_member x *BF*))
+      (setq atteignables nil))
+  ))
+)
 
+(defun bon_choix_maison (maison) ; Une maison est la bonne si ses premisses sont la BB
+  (let ((atteignables t) (idRegle nil))
+  (dolist (x *BR* nil)
+    (if (eq (cadr (but (car x))) (cadr maison)) ; On va chercher la règle qui correspond à la maison
+      (setq idRegle (car x))) ; On sauvegarde son id
+  )
+  (dolist (x (premisses idRegle) atteignables)
+    (if (not (custom_member x *BB*))
+      (setq atteignables nil))
+  ))
+)
 
+(defun regles_candidates_arriere () ; Une règle est candidates arrière si son but est dans la BB
+  (let ((candidates nil))
+  (dolist (regle *BR* candidates)
+    (let ((idRegle (car regle)))
+    (if (custom_member (but idRegle) *BB*)
+      (push regle candidates)))
+  ))
+)
+
+(defun update_BB ()
+  (dolist (r (regles_candidates_arriere) nil)
+    (dolist (p (premisses (car r)) nil)
+      (if (and (not (custom_member p *BB*)) (but_atteignable p))
+        (push p *BB*))
+    )
+  )
+)
+
+(defun moteur_arriere (maison)
+  (let ((bon_choix nil) (nb_regles_candidates_avant nil) (nb_regles_candidates_apres nil))
+  (push maison *BB*) ; La base de buts contient la maison à tester qui nous interesse
+  (update_BB)
+    (loop
+      ;(write (list-length (regles_candidates_arriere)))
+      (setq nb_regles_candidates_avant (list-length (regles_candidates_arriere)))
+      (update_BB)
+      (setq nb_regles_candidates_apres (list-length (regles_candidates_arriere)))
+      (cond
+        ((bon_choix_maison maison)
+          (format t "Vous avez fait le bon choix en choisissant ~A ! " (cadr maison)))
+        ((eq nb_regles_candidates_avant nb_regles_candidates_apres) ; Si le moteur arrière est bloqué
+          (format t "Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond." (cadr maison)))
+        (t (update_BB)))
+    (when (or (bon_choix_maison maison) (eq nb_regles_candidates_avant nb_regles_candidates_apres)) (return t))) ; On va s'arrêter si la maison est la bonne ou si le nombre de regle candidate stagne
+  )
+)
 
 ; -- SCENARIOS AVANT -- A retirer par la suite quand on proposera à l'utilisateur de répondre aux questions
 
 (defun scenario1 ()
   (setq *BF* '(
-    (karma oui)
-    (animal chien)
-    (boisson biere)
+    (karma non)
+    (animal chat)
+    (boisson eau)
     (fetard non)
     (type extraverti)
     (naturel adroit)
     (milieu populaire)
   ))
-  (moteur_avant))
+  (moteur_arriere '(maison Poufsouffle)))
 
 ; (scenario1)
 
