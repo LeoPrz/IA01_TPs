@@ -140,4 +140,94 @@
   ))
   (moteur_avant))
 
-(scenario1)
+; (scenario1)
+
+; -- QUESTIONS
+
+(setq *Questions*
+      '((1 "Croyez-vous au Karma ? " (oui non) karma)
+        (2 "Preferez-vous les chiens ou les chats ? " (chiens chats) animal)
+        (3 "Quelle boisson prefererez-vous ? " (biere vin eau) boisson)
+        (4 "Aimez-vous faire la fete ? " (oui non) fetard)
+        (5 "Etes-vous plutot introverti ou extraverti > " (introverti extraverti) type)
+        (6 "Avez-vous grandi dans un milieu populaire ou bourgeois ? " (populaire bourgeois) milieu)
+        (7 "Etes-vous plutot de naturel curieux/intellectuel ou adroit/manuel ? " (curieux adroit) naturel)
+       )
+)
+
+(defun Ask_question () ; a refaire
+    (let ((Q *Questions*))
+        (setq *BF* ())
+        (loop while (not (eq Q nil)) do
+            (let* ((Question (car Q)) (rep T))
+                (write (cadr Question))
+                (write (caddr Question))
+                (setq rep (read))
+                (push (list (cadddr (car Q)) rep) *BF*)
+                (setq Q (cdr Q))
+            )
+        )
+        *BF*
+    )
+)
+
+; -- MENU --
+(defun AffichageMenu()
+    (Loop
+        (format T "~%")
+        (format T "|------------------------------------------------------------------|~%")
+        (format T "|                                 Menu                             |~%")
+        (format T "|------------------------------------------------------------------|~%")
+        (format T "| Que souhaitez vous faire ?                                       |~%")
+        (format T "| 1 - Savoir si mon ma maison actuelle a Poudlard me correspond    |~%")
+        (format T "| 2 - Connaitre ma future maison a Poudlard                        |~%")
+        (format T "|------------------------------------------------------------------|~%")
+        (format T "~%")
+        (let ((choice (read)))
+            (cond
+                ((or (< choice 1) (> choice 2)) (format T "~%Ce choix n'est pas valide. ~%"))
+                ((eq choice 1) (progn
+                    (format T "~%|---------------------------------------------------------------------------------------------|~%")
+                    (format T "| Veuillez sélectionner votre maison actuelle chez Poudlard |~%")
+                    (format T "| 1. Gryffondor  |~%")
+                    (format T "| 2. Serpentard  |~%")
+                    (format T "| 3. Poufsouffle |~%")
+                    (format T "| 4. Serdaigle   |~%")
+                    (format T "|---------------------------------------------------------------------------------------------|~%")
+                    (setq maison (read))
+                        (loop while (or (< maison 1) (> maison 4) (not (= (gcd 1 maison) 1))) do
+                            (format T "~%")
+                            (format T "-> Le choix est un entier naturel compris entre 1 et 4.~%")
+                            (format T "~%")
+                            (setq maison (read))
+                        )
+                        (format T "~% ~D ?~%" choix)
+                        (format T "~%-> Repondez aux questions qui vont suivre ci-dessous ~%~%")
+                        (Ask_question)
+                        (moteur_arriere maison)
+                ))
+                ((eq choice 2) (progn
+                    (format T "~%-> Repondez aux questions qui vont suivre ci-dessous ~%~%")
+                    (Ask_question)
+                    (setq s (moteur_avant))
+                    (format T "~%~%")
+                ))
+            )
+        )
+        (format T "~%")
+        (format T "|----------------------------------------------------------------------------------|~%")
+        (format T "| Voulez vous reiterer l'experience ? (Si oui saisissez OUI, si non saisissez NON) |~%")
+        (format T "|----------------------------------------------------------------------------------|~%")
+        (let ((x (read)))
+            (cond
+                ((EQUAL x 'OUI) (setq repeter 'yes))
+                ((EQUAL x 'NON) (setq repeter NIL))
+            )
+            (when (not repeter)
+                (return NIL)
+            )
+        )
+    )
+)
+
+(AffichageMenu)
