@@ -165,7 +165,6 @@
   (push maison *BB*) ; La base de buts contient la maison à tester qui nous interesse
   (update_BB)
     (loop
-      ;(write (list-length (regles_candidates_arriere)))
       (setq nb_regles_candidates_avant (list-length (regles_candidates_arriere)))
       (update_BB)
       (setq nb_regles_candidates_apres (list-length (regles_candidates_arriere)))
@@ -193,7 +192,7 @@
   ))
   (moteur_arriere '(maison Poufsouffle)))
 
-; (scenario1)
+;(scenario1)
 
 ; -- QUESTIONS
 
