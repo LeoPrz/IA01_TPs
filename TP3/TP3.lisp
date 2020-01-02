@@ -118,14 +118,14 @@
 
 ; -- MOTEUR ARRIERE --
 
-(defun but_atteignable (b) ; Un but est atteignable si ses premisses sont dans la BB
+(defun but_atteignable (b) ; Un but est atteignable si ses premisses sont dans la BB ou dans la BF
   (let ((atteignables t) (idRegle nil))
   (dolist (x *BR* nil)
     (if (eq (cadr (but (car x))) (cadr b)) ; On va chercher la règle qui correspond au but
       (setq idRegle (car x))) ; On sauvegarde son id
   )
   (dolist (x (premisses idRegle) atteignables) ; Pour chaque premisses de la règle concernant le but à atteindre
-    (if (not (custom_member x *BF*))
+    (if (not (or (custom_member x *BF*)  (custom_member x *BF*)))
       (setq atteignables nil))
   ))
 )
@@ -152,12 +152,27 @@
 )
 
 (defun update_BB ()
+  (format t "Voila la BB ~A~%" *BB*)
   (dolist (r (regles_candidates_arriere) nil)
     (dolist (p (premisses (car r)) nil)
-      (if (and (not (custom_member p *BB*)) (but_atteignable p))
-        (push p *BB*))
+      (cond
+        ((and (not (custom_member p *BB*)) (not (custom_member p *BF*)) (but_atteignable p))
+          (push p *BB*) (format t "J'ajoute le but ~A ! ~%" p))
+        ((not (custom_member p *BB*)) ; Cas où l'on doit chercher plus en profondeur
+          (format t "On s'occupe ici du cas d'Expelliarmus ~%")
+          (let ((regle_p nil))
+          (dolist (regle *BR* nil) ; On va chercher la regle qui a pour but la premisse
+            (if (eq (cadr (but (car regle))) (cadr p))
+              (setq regle_p regle))
+          )
+          (dolist (p2 (premisses (car regle_p)) nil)
+            (if (and (not (custom_member p2 *BB*)) (not (custom_member p2 *BF*)) (but_atteignable p2)) (push p2 *BB*))
+          ))
+        )
+      )
     )
   )
+(format t "En sortie BB = ~A~%" *BB*)
 )
 
 (defun moteur_arriere (maison)
@@ -170,35 +185,26 @@
       (setq nb_regles_candidates_apres (list-length (regles_candidates_arriere)))
       (cond
         ((bon_choix_maison maison)
-          (format t "Vous avez fait le bon choix en choisissant ~A ! " (cadr maison)))
+          (format t "~% Vous avez fait le bon choix en choisissant ~A ! ~%" (cadr maison)))
         ((eq nb_regles_candidates_avant nb_regles_candidates_apres) ; Si le moteur arrière est bloqué
-          (format t "Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond." (cadr maison)))
+          (format t "~% Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond. ~%" (cadr maison)))
         (t (update_BB)))
     (when (or (bon_choix_maison maison) (eq nb_regles_candidates_avant nb_regles_candidates_apres)) (return t))) ; On va s'arrêter si la maison est la bonne ou si le nombre de regle candidate stagne
   )
 )
 
-; -- SCENARIOS AVANT -- A retirer par la suite quand on proposera à l'utilisateur de répondre aux questions
 
-(defun scenario1 ()
-  (setq *BF* '(
-    (karma non)
-    (animal chat)
-    (boisson eau)
-    (fetard non)
-    (type extraverti)
-    (naturel adroit)
-    (milieu populaire)
-  ))
-  (moteur_arriere '(maison Poufsouffle)))
+;TESTS
 
-;(scenario1)
+(setq *BF* '((type extraverti) (animal chien) (karma oui) (milieu populaire) (boisson biere) (fetard oui) (naturel curieux)))
+;(moteur_avant)
+(moteur_arriere '(maison Gryffondor))
 
 ; -- QUESTIONS
 
 (setq *Questions*
       '((1 "Croyez-vous au Karma ? " (oui non) karma)
-        (2 "Preferez-vous les chiens ou les chats ? " (chiens chats) animal)
+        (2 "Preferez-vous les chiens ou les chats ? " (chien chat) animal)
         (3 "Quelle boisson prefererez-vous ? " (biere vin eau) boisson)
         (4 "Aimez-vous faire la fete ? " (oui non) fetard)
         (5 "Etes-vous plutot introverti ou extraverti > " (introverti extraverti) type)
@@ -214,6 +220,7 @@
             (let* ((Question (car Q)) (rep T))
                 (write (cadr Question))
                 (write (caddr Question))
+                (format T " ->")
                 (setq rep (read))
                 (push (list (cadddr (car Q)) rep) *BF*)
                 (setq Q (cdr Q))
@@ -227,34 +234,35 @@
 (defun AffichageMenu()
     (Loop
         (format T "~%")
-        (format T "|----------------------------------------------------------------------------------|~%")
-        (format T "|                                         Menu                                     |~%")
-        (format T "|----------------------------------------------------------------------------------|~%")
-        (format T "| Que souhaitez vous faire ?                                                       |~%")
-        (format T "| 1 - [Chainage arrière] Savoir si mon ma maison actuelle a Poudlard me correspond |~%")
-        (format T "| 2 - [Chainage avant] Connaitre ma future maison a Poudlard                       |~%")
-        (format T "|----------------------------------------------------------------------------------|~%")
-        (format T "~%")
+        (format T "|-----------------------------------------------------------------------------------|~%")
+        (format T "|                                 Application Choixpeaux                            |~%")
+        (format T "|-----------------------------------------------------------------------------------|~%")
+        (format T "| Que souhaitez vous faire ?                                                        |~%")
+        (format T "|  1 - [Chainage arrière] Savoir si mon ma maison actuelle a Poudlard me correspond.|~%")
+        (format T "|  2 - [Chainage avant] Connaitre ma future maison a Poudlard.                      |~%")
+        (format T "|-----------------------------------------------------------------------------------|~%")
+        (format T "~%->")
         (let ((choice (read)))
             (cond
                 ((or (< choice 1) (> choice 2)) (format T "~%Ce choix n'est pas valide. ~%"))
                 ((eq choice 1) (progn
                     (format T "~%")
-                    (format T "|----------------------------------------------------------------------|~%")
-                    (format T "| Veuillez sélectionner votre maison actuelle chez Poudlard            |~%")
-                    (format T "| 1. Gryffondor                                                        |~%")
-                    (format T "| 2. Serpentard                                                        |~%")
-                    (format T "| 3. Poufsouffle                                                       |~%")
-                    (format T "| 4. Serdaigle                                                         |~%")
-                    (format T "|----------------------------------------------------------------------|~%")
+                    (format T "|-----------------------------------------------------------------------|~%")
+                    (format T "| Veuillez sélectionner votre maison actuelle chez Poudlard :           |~%")
+                    (format T "|  Gryffondor                                                           |~%")
+                    (format T "|  Serpentard                                                           |~%")
+                    (format T "|  Poufsouffle                                                          |~%")
+                    (format T "|  Serdaigle                                                            |~%")
+                    (format T "|-----------------------------------------------------------------------|~%")
+                    (format T "->")
                     (setq maison (read))
-                        (loop while (or (< maison 1) (> maison 4) (not (= (gcd 1 maison) 1))) do
+                        (loop while (not (or (eq maison 'Gryffondor) (eq maison 'Serpentard) (eq maison 'Poufsouffle) (eq maison 'Serdaigle))) do
                             (format T "~%")
-                            (format T "-> Le choix est un entier naturel compris entre 1 et 4.~%")
-                            (format T "~%")
+                            (format T "-> Le choix est une des quatres maisons.~%")
+                            (format T "->")
                             (setq maison (read))
                         )
-                        (format T "~% ~D ?~%" choix)
+                        (setq maison (list 'maison maison)) ; Attention à mettre la valeur sous la forme (maison choix) pour utiliser le moteur arriere
                         (format T "~%-> Repondez aux questions qui vont suivre ci-dessous ~%~%")
                         (Ask_question)
                         (moteur_arriere maison)
@@ -271,6 +279,7 @@
         (format T "|----------------------------------------------------------------------------------|~%")
         (format T "| Voulez vous reiterer l'experience ? (Si oui saisissez OUI, si non saisissez NON) |~%")
         (format T "|----------------------------------------------------------------------------------|~%")
+        (format T "->")
         (let ((x (read)))
             (cond
                 ((EQUAL x 'OUI) (setq repeter 'yes))
@@ -283,4 +292,4 @@
     )
 )
 
-(AffichageMenu)
+;(AffichageMenu)
