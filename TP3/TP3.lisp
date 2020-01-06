@@ -1,29 +1,36 @@
 ; BASE DE REGLES
 (setq *BR* '(
-  (R1 ((qualite courage) (sortilege Expelliarmus)) (maison Gryffondor))
-  (R2 ((qualite malice) (temperament bagarreur)) (maison Serpentard))
+
+  (R1 ((qualite courage) (temperament intrepide)) (maison Gryffondor))
+  (R2 ((qualite malice) (sortilege Expelliarmus)) (maison Serpentard))
   (R3 ((valeur justice) (temperament travailleur)) (maison Poufsouffle))
   (R4 ((valeur sagesse) (sortilege Legilimens)) (maison Serdaigle))
+  (R5 ((valeur sagesse) (sortilege Herbivicus)) (maison Hagrid))
 
-  (R5 ((naturel curieux) (boisson biere)) (qualite courage))
-  ;(R6 ((karma oui) (milieu populaire)) (qualite courage))
-  (R7 ((naturel adroit) (wtf pute)) (qualite malice))
-  ;(R8 ((karma oui) (boisson vin)) (qualite malice))
+  (R6 ((boisson vin) (default arrogance)) (qualite malice))
+  (R7 ((caractere brave) (objectif protection)) (qualite courage))
 
-  (R9 ((valeur justice) (fetard oui)) (sortilege Expelliarmus))
-  ;(R10 ((naturel curieux) (fetard oui)) (sortilege Expelliarmus))
-  (R11 ((animal chat) (type introverti)) (sortilege Legilimens))
-  ;(R12 ((animal chat) (boisson vin)) (sortilege Legilimens))
+  (R8 ((type extraverti) (default jalousie)) (sortilege Expelliarmus))
+  (R9 ((type extraverti) (default arrogance)) (sortilege Legilimens))
+  (R10 (type introverti) (sortilege Herbivicus))
 
-  (R13 ((animal chien) (karma non)) (temperament bagarreur))
-  ;(R14 ((boisson biere) (fetard oui)) (temperament bagarreur))
-  (R15 ((milieu populaire) (fetard non)) (temperament travailleur))
-  ;(R16 ((boisson eau) (fetard non)) (temperament travailleur))
+  (R11 ((milieu bourgeois)) (default arrogance))
+  (R12 ((milieu populaire)) (default jalousie))
 
-  (R17 ((karma oui) (type extraverti)) (valeur justice))
-  ;(R18 ((boisson vin) (animal chien)) (valeur justice))
-  (R19 ((milieu bourgeois) (boisson vin)) (valeur sagesse))
-  ;(R20 ((milieu bourgeois) (type introverti)) (valeur sagesse))
+  (R13 ((naturel adroit)) (sport quidditch))
+
+  (R14 ((boisson vin) (naturel curieux)) (valeur justice))
+  (R15 ((boisson biere) (milieu populaire) (sport quidditch)) (valeur sagesse))
+
+  (R16 ((boisson vin) (type introverti)) (temperament travailleur))
+  (R17 ((boisson biere) (milieu bourgeois)) (temperament intrepide))
+
+  (R18 ((humeur joyeux) (amour fidele)) (boisson biere))
+  (R19 ((humeur triste) (amour infidele)) (boisson vin))
+
+  (R20 ((baguette chaine)) (amour fidele))
+  (R21 ((baguette surreau)) (amour infidele))
+
 ))
 
 ; BASE DE FAITS
@@ -192,6 +199,14 @@
     (when (or (bon_choix_maison maison) (eq nb_regles_candidates_avant nb_regles_candidates_apres)) (return t))) ; On va s'arrêter si la maison est la bonne ou si le nombre de regle candidate stagne
   )
 )
+
+
+;------ Tentative 2 de moteur arriere -----
+
+(defun bon_choix_arriere ()
+
+(defun moteur_arriere2 ()
+
 
 
 ;TESTS
