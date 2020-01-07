@@ -1,18 +1,18 @@
 ; BASE DE REGLES
 (setq *BR* '(
 
-  (R1 ((qualite courage) (temperament intrepide)) (maison Gryffondor))
+  (R1 ((qualite courage) (temperament intrepide) (sport quidditch)) (maison Gryffondor))
   (R2 ((qualite malice) (sortilege Expelliarmus)) (maison Serpentard))
   (R3 ((valeur justice) (temperament travailleur)) (maison Poufsouffle))
   (R4 ((valeur sagesse) (sortilege Legilimens)) (maison Serdaigle))
   (R5 ((valeur sagesse) (sortilege Herbivicus)) (maison Hagrid))
 
   (R6 ((boisson vin) (default arrogance)) (qualite malice))
-  (R7 ((caractere brave) (objectif protection)) (qualite courage))
+  (R7 ((boisson biere) (default arrogance)) (qualite courage))
 
   (R8 ((type extraverti) (default jalousie)) (sortilege Expelliarmus))
   (R9 ((type extraverti) (default arrogance)) (sortilege Legilimens))
-  (R10 (type introverti) (sortilege Herbivicus))
+  (R10 ((type introverti)) (sortilege Herbivicus))
 
   (R11 ((milieu bourgeois)) (default arrogance))
   (R12 ((milieu populaire)) (default jalousie))
@@ -23,7 +23,7 @@
   (R15 ((boisson biere) (milieu populaire) (sport quidditch)) (valeur sagesse))
 
   (R16 ((boisson vin) (type introverti)) (temperament travailleur))
-  (R17 ((boisson biere) (milieu bourgeois)) (temperament intrepide))
+  (R17 ((type extraverti) (milieu bourgeois)) (temperament intrepide))
 
   (R18 ((humeur joyeux) (amour fidele)) (boisson biere))
   (R19 ((humeur triste) (amour infidele)) (boisson vin))
@@ -159,14 +159,12 @@
 )
 
 (defun update_BB ()
-  (format t "Voila la BB ~A~%" *BB*)
   (dolist (r (regles_candidates_arriere) nil)
     (dolist (p (premisses (car r)) nil)
       (cond
         ((and (not (custom_member p *BB*)) (not (custom_member p *BF*)) (but_atteignable p))
-          (push p *BB*) (format t "J'ajoute le but ~A ! ~%" p))
+          (push p *BB*))
         ((not (custom_member p *BB*)) ; Cas où l'on doit chercher plus en profondeur
-          (format t "On s'occupe ici du cas d'Expelliarmus ~%")
           (let ((regle_p nil))
           (dolist (regle *BR* nil) ; On va chercher la regle qui a pour but la premisse
             (if (eq (cadr (but (car regle))) (cadr p))
@@ -179,7 +177,6 @@
       )
     )
   )
-(format t "En sortie BB = ~A~%" *BB*)
 )
 
 (defun moteur_arriere (maison)
@@ -203,28 +200,18 @@
 
 ;------ Tentative 2 de moteur arriere -----
 
-(defun bon_choix_arriere ()
+;(defun bon_choix_arriere ()
 
-(defun moteur_arriere2 ()
-
-
-
-;TESTS
-
-(setq *BF* '((type extraverti) (animal chien) (karma oui) (milieu populaire) (boisson biere) (fetard oui) (naturel curieux)))
-;(moteur_avant)
-(moteur_arriere '(maison Gryffondor))
+;(defun moteur_arriere2 ()
 
 ; -- QUESTIONS
 
 (setq *Questions*
-      '((1 "Croyez-vous au Karma ? " (oui non) karma)
-        (2 "Preferez-vous les chiens ou les chats ? " (chien chat) animal)
-        (3 "Quelle boisson prefererez-vous ? " (biere vin eau) boisson)
-        (4 "Aimez-vous faire la fete ? " (oui non) fetard)
-        (5 "Etes-vous plutot introverti ou extraverti > " (introverti extraverti) type)
-        (6 "Avez-vous grandi dans un milieu populaire ou bourgeois ? " (populaire bourgeois) milieu)
-        (7 "Etes-vous plutot de naturel curieux/intellectuel ou adroit/manuel ? " (curieux adroit) naturel)
+      '((1 "En quelle bois est faites votre baguette ? " (surreau chaine) baguette)
+        (2 "Etes-vous plutot de naturel curieux/intellectuel ou adroit/manuel ? " (curieux adroit) naturel)
+        (3 "Etes-vous plutot introverti ou extraverti > " (introverti extraverti) type)
+        (4 "Avez-vous grandi dans un milieu populaire ou bourgeois ? " (populaire bourgeois) milieu)
+        (5 "Etes vous plus souvent d'humeur joyeuse ou maussade ? " (joyeux triste) humeur)
        )
 )
 
@@ -307,4 +294,4 @@
     )
 )
 
-;(AffichageMenu)
+(AffichageMenu)
