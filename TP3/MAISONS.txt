@@ -1,0 +1,123 @@
+MAISONS BUTS
+
+Poufsouffle
+BB
+(valeur justice)
+(temperament travailleur)
+(default jalousie)
+(milieu populaire)
+(boisson vin)
+(naturel curieux)
+(type introverti)
+(humeur triste)
+(amour infidele)
+(baguette surreau)
+BF
+(baguette surreau)
+(naturel curieux)
+(type introverti)
+(milieu populaire)
+(humeur triste)
+
+Serdaigle
+BB
+(valeur sagesse)
+(sortilege Legilimens)
+(boisson biere)
+(loisir librairie)
+(type introverti)
+(default arrogance)
+(humeur joyeux)
+(amour fidele)
+(naturel curieux)
+(milieu bourgeois)
+(baguette chaine)
+BF
+(baguette chaine)
+(naturel curieux)
+(type introverti)
+(milieu bourgeois)
+(humeur joyeux)
+
+Gryffondor
+BB
+(qualite courage)
+(sortilege Expelliarmus)
+(loisir quidditch)
+(boisson biere)
+(default arrogance)
+(type extraverti)
+(milieu bourgeois)
+(naturel adroit)
+(humeur joyeux)
+(amour fidele)
+(baguette chaine)
+BF
+(baguette chaine)
+(naturel adroit)
+(type extraverti)
+(milieu bourgeois)
+(humeur joyeux)
+
+Serpentard
+BB
+(qualite malice)
+(temperament intrepide)
+(loisir quidditch)
+(boisson vin)
+(default arrogance)
+(type extraverti)
+(milieu bourgeois)
+(naturel adroit)
+(humeur triste)
+(amour infidele)
+(baguette surreau)
+BF
+(baguette surreau)
+(naturel adroit)
+(type extraverti)
+(milieu bourgeois)
+(humeur triste)
+
+Hagrid
+BB
+(valeur sagesse)
+(sortilege Herbivicus)
+(boisson biere)
+(milieu populaire)
+(loisir librairie)
+(type introverti)
+(humeur joyeux)
+(amour fidele)
+(naturel curieux)
+(baguette chaine)
+BF
+(baguette chaine)
+(naturel curieux)
+(type introverti)
+(milieu populaire)
+(humeur joyeux)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
