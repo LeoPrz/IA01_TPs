@@ -1,35 +1,36 @@
 ; BASE DE REGLES
 (setq *BR* '(
 
-  (R1 ((qualite courage) (temperament intrepide) (sport quidditch)) (maison Gryffondor))
-  (R2 ((qualite malice) (sortilege Expelliarmus)) (maison Serpentard))
-  (R3 ((valeur justice) (temperament travailleur)) (maison Poufsouffle))
-  (R4 ((valeur sagesse) (sortilege Legilimens)) (maison Serdaigle))
-  (R5 ((valeur sagesse) (sortilege Herbivicus)) (maison Hagrid))
+    (R1 ((qualite courage) (sortilege Expelliarmus) (loisir quidditch)) (maison Gryffondor))
+    (R2 ((qualite malice) (temperament intrepide) (loisir quidditch)) (maison Serpentard))
+    (R3 ((valeur justice) (temperament travailleur) (default jalousie)) (maison Poufsouffle))
+    (R4 ((valeur sagesse) (sortilege Legilimens)) (maison Serdaigle))
+    (R5 ((valeur sagesse) (sortilege Herbivicus)) (maison Hagrid))
 
-  (R6 ((boisson vin) (default arrogance)) (qualite malice))
-  (R7 ((boisson biere) (default arrogance)) (qualite courage))
+    (R6 ((boisson vin) (default arrogance)) (qualite malice))
+    (R7 ((boisson biere) (default arrogance)) (qualite courage))
 
-  (R8 ((type extraverti) (default jalousie)) (sortilege Expelliarmus))
-  (R9 ((type extraverti) (default arrogance)) (sortilege Legilimens))
-  (R10 ((type introverti)) (sortilege Herbivicus))
+    (R8 ((type extraverti) (naturel adroit)) (sortilege Expelliarmus))
+    (R9 ((type introverti) (default arrogance)) (sortilege Legilimens))
+    (R10 ((type introverti) (milieu populaire)) (sortilege Herbivicus))
 
-  (R11 ((milieu bourgeois)) (default arrogance))
-  (R12 ((milieu populaire)) (default jalousie))
+    (R11 ((milieu bourgeois)) (default arrogance))
+    (R12 ((milieu populaire)) (default jalousie))
 
-  (R13 ((naturel adroit)) (sport quidditch))
+    (R13 ((naturel adroit)) (loisir quidditch))
+    (R14 ((naturel curieux)) (loisir librairie))
 
-  (R14 ((boisson vin) (naturel curieux)) (valeur justice))
-  (R15 ((boisson biere) (milieu populaire) (sport quidditch)) (valeur sagesse))
+    (R15 ((boisson vin) (naturel curieux)) (valeur justice))
+    (R16 ((boisson biere) (loisir librairie)) (valeur sagesse))
 
-  (R16 ((boisson vin) (type introverti)) (temperament travailleur))
-  (R17 ((type extraverti) (milieu bourgeois)) (temperament intrepide))
+    (R17 ((boisson vin) (type introverti)) (temperament travailleur))
+    (R18 ((type extraverti) (milieu bourgeois)) (temperament intrepide))
 
-  (R18 ((humeur joyeux) (amour fidele)) (boisson biere))
-  (R19 ((humeur triste) (amour infidele)) (boisson vin))
+    (R19 ((humeur joyeux) (amour fidele)) (boisson biere))
+    (R20 ((humeur triste) (amour infidele)) (boisson vin))
 
-  (R20 ((baguette chaine)) (amour fidele))
-  (R21 ((baguette surreau)) (amour infidele))
+    (R21 ((baguette chaine)) (amour fidele))
+    (R22 ((baguette surreau)) (amour infidele))
 
 ))
 
@@ -41,17 +42,18 @@
 
 ; ETATS FINAUX
 (setq *EF* '(
-  (maison Gryffondor)
-  (maison Serpentard)
-  (maison Poufsouffle)
-  (maison Serdaigle)
+    (maison Gryffondor)
+    (maison Serpentard)
+    (maison Poufsouffle)
+    (maison Serdaigle)
+    (maison Hagrid)
 ))
 
 
 ; Pour construire nos moteurs ici, nous avons besoins de certaines fonctions intermédiaires
 
 ; -- PREMISSE D'UNE REGLE --
-(defun premisses (idRegle)
+(defun premisse (idRegle)
   (cadr (assoc idRegle *BR*))
 )
 
@@ -82,11 +84,11 @@
 
 ; -- REGLES CANDIDATES --
 (defun regles_candidates_avant ()
-  (let ((candidates nil))
-  (dolist (regle *BR* candidates)
+  (let ((candidats nil))
+  (dolist (regle *BR* candidats)
     (let ((idRegle (car regle)))
-    (if (and (not (custom_member (but idRegle) *BF*)) (presence_premisses_BF (premisses idRegle))) ; La regle est candidate si les premisses sont dans la BF mais pas le but de la règle
-      (push regle candidates))
+    (if (and (not (custom_member (but idRegle) *BF*)) (presence_premisses_BF (premisse idRegle))) ; La regle est candidate si les premisses sont dans la BF mais pas le but de la règle
+      (push regle candidats))
     )
   ))
 )
@@ -110,104 +112,94 @@
 
 ; -- MOTEUR --
 (defun moteur_avant ()
-  (let ((choix (choix_choixpeaux)))
-  (cond
-  ((not (eq nil choix)) (format t "Pour vous ce sera ~A !" (car (cdar choix))))
+    (let ((choix (choix_choixpeaux)))
+        (cond
+            ((not (eq nil choix)) (format t "~%Pour vous ce sera ~A ! ~%" (car (cdar choix))))
 
-  ; Si pas encore d'EF dans BF
-  ((eq nil (regles_candidates_avant))
-    ; Cas où le chapeux n'a pas de réponse -> L'élève ne peut pas intégrer Poudlard
-    (format t "Vous ne pouvez pas intégrer Poudlard, rejoignez Voldemort !"))
-  ; Sinon on rappelle le moteur
-  (t (update_BF) (moteur_avant))
-  ))
+            ; Si pas encore d'EF dans BF
+            ((eq nil (regles_candidates_avant))
+            ; Cas où le chapeux n'a pas de réponse -> L'élève ne peut pas intégrer Poudlard
+            (format t "~%Vous ne pouvez pas intégrer Poudlard, rejoignez Voldemort ! ~%"))
+            ; Sinon on rappelle le moteur
+            (t (update_BF) (moteur_avant))
+        )
+    )
 )
 
 ; -- MOTEUR ARRIERE --
 
-(defun but_atteignable (b) ; Un but est atteignable si ses premisses sont dans la BB ou dans la BF
-  (let ((atteignables t) (idRegle nil))
-  (dolist (x *BR* nil)
-    (if (eq (cadr (but (car x))) (cadr b)) ; On va chercher la règle qui correspond au but
-      (setq idRegle (car x))) ; On sauvegarde son id
-  )
-  (dolist (x (premisses idRegle) atteignables) ; Pour chaque premisses de la règle concernant le but à atteindre
-    (if (not (or (custom_member x *BF*)  (custom_member x *BF*)))
-      (setq atteignables nil))
-  ))
-)
-
-(defun bon_choix_maison (maison) ; Une maison est la bonne si ses premisses sont la BB
-  (let ((atteignables t) (idRegle nil))
-  (dolist (x *BR* nil)
-    (if (eq (cadr (but (car x))) (cadr maison)) ; On va chercher la règle qui correspond à la maison
-      (setq idRegle (car x))) ; On sauvegarde son id
-  )
-  (dolist (x (premisses idRegle) atteignables)
-    (if (not (custom_member x *BB*))
-      (setq atteignables nil))
-  ))
-)
-
-(defun regles_candidates_arriere () ; Une règle est candidates arrière si son but est dans la BB
-  (let ((candidates nil))
-  (dolist (regle *BR* candidates)
-    (let ((idRegle (car regle)))
-    (if (custom_member (but idRegle) *BB*)
-      (push regle candidates)))
-  ))
-)
-
-(defun update_BB ()
-  (dolist (r (regles_candidates_arriere) nil)
-    (dolist (p (premisses (car r)) nil)
-      (cond
-        ((and (not (custom_member p *BB*)) (not (custom_member p *BF*)) (but_atteignable p))
-          (push p *BB*))
-        ((not (custom_member p *BB*)) ; Cas où l'on doit chercher plus en profondeur
-          (let ((regle_p nil))
-          (dolist (regle *BR* nil) ; On va chercher la regle qui a pour but la premisse
-            (if (eq (cadr (but (car regle))) (cadr p))
-              (setq regle_p regle))
-          )
-          (dolist (p2 (premisses (car regle_p)) nil)
-            (if (and (not (custom_member p2 *BB*)) (not (custom_member p2 *BF*)) (but_atteignable p2)) (push p2 *BB*))
-          ))
-        )
+(defun absence_premisses_BB (premisses)
+  (let ((result nil))
+    (dolist (x premisses result) ; ; parcours des prémisses de la règles
+      (if (not (custom_member x *BB*)) ; vérification de leur présence dans la base de buts
+        (setq result t)
       )
     )
   )
 )
 
-(defun moteur_arriere (maison)
-  (let ((bon_choix nil) (nb_regles_candidates_avant nil) (nb_regles_candidates_apres nil))
-  (push maison *BB*) ; La base de buts contient la maison à tester qui nous interesse
-  (update_BB)
-    (loop
-      (setq nb_regles_candidates_avant (list-length (regles_candidates_arriere)))
-      (update_BB)
-      (setq nb_regles_candidates_apres (list-length (regles_candidates_arriere)))
-      (cond
-        ((bon_choix_maison maison)
-          (format t "~% Vous avez fait le bon choix en choisissant ~A ! ~%" (cadr maison)))
-        ((eq nb_regles_candidates_avant nb_regles_candidates_apres) ; Si le moteur arrière est bloqué
-          (format t "~% Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond. ~%" (cadr maison)))
-        (t (update_BB)))
-    (when (or (bon_choix_maison maison) (eq nb_regles_candidates_avant nb_regles_candidates_apres)) (return t))) ; On va s'arrêter si la maison est la bonne ou si le nombre de regle candidate stagne
+(defun regles_candidates_arriere ()
+    (let ((candidats nil))
+        (dolist (regle *BR* candidats) ; parcours des règles
+            (let ((idRegle (car regle)))
+                (if (and (absence_premisses_BB (premisse idRegle)) (custom_member (but idRegle) *BB*)) ; si un but est dans la BB mais une de ses premisses n'y est pas, on ajoute la règle aux candidats
+                    (push idRegle candidats)
+                )
+            )
+        )
+    )
+)
+
+(defun update_BB (candidats)
+    (dolist (x candidats) ; parcours des règles candidates
+        (dolist (y (premisse x)) ; parcours des prémisses d'une règle candidate
+            (if (not (custom_member y *BB*))
+                (push y *BB*) ; mise à jour de la base de buts
+            )
+        )
+    )
+)
+
+(defun bon_choix_arriere ()
+  (let ((result t))
+    (dolist (fait *BF* result) ; parcours des faits
+      (if (not (custom_member fait *BB*))
+        (setq result nil)
+      )
+    )
   )
 )
 
+(defun sousMoteur ()
+    (if (not (null (bon_choix_arriere)))
+        (format t "~%Vous avez fait le bon choix en choisissant la maison ~A. ~%" (cadr (car (last *BB*))))
+        (let ((candidats (regles_candidates_arriere)))
+            (cond ((not (null candidats))
+                (update_BB candidats)
+                (sousMoteur)
+            ))
+        )
+    )
+)
 
-;------ Tentative 2 de moteur arriere -----
-
-;(defun bon_choix_arriere ()
-
-;(defun moteur_arriere2 ()
+(defun moteur_arriere (maison)
+    (let ((result nil))
+        (setq *BB* nil)
+        (push maison *BB*)
+        (sousMoteur)
+        (if (not (null (bon_choix_arriere)))
+            (setq result t)
+        )
+        (if (null result)
+            (format t "~%Votre intégration à ~A était une erreur... Utilisez le moteur avant pour savoir quelle maison vous correspond. ~%" (cadr maison))
+        )
+    )
+)
 
 ; -- QUESTIONS
 
 (setq *Questions*
-      '((1 "En quelle bois est faites votre baguette ? " (surreau chaine) baguette)
+      '((1 "En quelle bois est faite votre baguette ? " (surreau chaine) baguette)
         (2 "Etes-vous plutot de naturel curieux/intellectuel ou adroit/manuel ? " (curieux adroit) naturel)
         (3 "Etes-vous plutot introverti ou extraverti > " (introverti extraverti) type)
         (4 "Avez-vous grandi dans un milieu populaire ou bourgeois ? " (populaire bourgeois) milieu)
@@ -255,16 +247,17 @@
                     (format T "|  Serpentard                                                           |~%")
                     (format T "|  Poufsouffle                                                          |~%")
                     (format T "|  Serdaigle                                                            |~%")
+                    (format T "|  Hagrid                                                               |~%")
                     (format T "|-----------------------------------------------------------------------|~%")
                     (format T "->")
-                    (setq maison (read))
-                        (loop while (not (or (eq maison 'Gryffondor) (eq maison 'Serpentard) (eq maison 'Poufsouffle) (eq maison 'Serdaigle))) do
+                    (setq choixMaison (read))
+                        (loop while (not (or (eq choixMaison 'Gryffondor) (eq choixMaison 'Serpentard) (eq choixMaison 'Poufsouffle) (eq choixMaison 'Serdaigle) (eq choixMaison 'Hagrid))) do
                             (format T "~%")
-                            (format T "-> Le choix est une des quatres maisons.~%")
+                            (format T "-> Le choix est une des quatres maisons ou Hagrid.~%")
                             (format T "->")
-                            (setq maison (read))
+                            (setq choixMaison (read))
                         )
-                        (setq maison (list 'maison maison)) ; Attention à mettre la valeur sous la forme (maison choix) pour utiliser le moteur arriere
+                        (setq maison (list 'maison choixMaison)) ; Attention à mettre la valeur sous la forme (maison choix) pour utiliser le moteur arriere
                         (format T "~%-> Repondez aux questions qui vont suivre ci-dessous ~%~%")
                         (Ask_question)
                         (moteur_arriere maison)
@@ -294,4 +287,157 @@
     )
 )
 
-(AffichageMenu)
+; -- SCENARIOS --
+(defun scenarioAvantPoufsouffle () ; Poufsouffle
+    (setq *BF* '(
+        (baguette surreau)
+        (naturel curieux)
+        (type introverti)
+        (milieu populaire)
+        (humeur triste)
+    ))
+    (moteur_avant)
+)
+
+(defun scenarioAvantSerdaigle () ; Serdaigle
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel curieux)
+        (type introverti)
+        (milieu bourgeois)
+        (humeur joyeux)
+    ))
+    (moteur_avant)
+)
+
+(defun scenarioAvantGryffondor () ; Poufsouffle
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel adroit)
+        (type extraverti)
+        (milieu bourgeois)
+        (humeur joyeux)
+    ))
+    (moteur_avant)
+)
+
+(defun scenarioAvantSerpentard () ; Seprentard
+    (setq *BF* '(
+        (baguette surreau)
+        (naturel adroit)
+        (type extraverti)
+        (milieu bourgeois)
+        (humeur triste)
+    ))
+    (moteur_avant)
+)
+
+(defun scenarioAvantHagrid () ; Hagrid
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel curieux)
+        (type introverti)
+        (milieu populaire)
+        (humeur joyeux)
+    ))
+    (moteur_avant)
+)
+
+(defun scenarioAvantVoldemort () ; Renvoyé
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel adroit)
+        (type extraverti)
+        (milieu bourgeois)
+        (humeur triste)
+    ))
+    (moteur_avant)
+)
+
+(defun scenarioArrierePoufsouffle () ; Bonne maison (Poufsouffle)
+    (setq *BF* '(
+        (baguette surreau)
+        (naturel curieux)
+        (type introverti)
+        (milieu populaire)
+        (humeur triste)
+    ))
+    (moteur_arriere '(maison Poufsouffle))
+)
+
+(defun scenarioArriereSerdaigle () ; Bonne maison (Serdaigle)
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel curieux)
+        (type introverti)
+        (milieu bourgeois)
+        (humeur joyeux)
+    ))
+    (moteur_arriere '(maison Serdaigle))
+)
+
+(defun scenarioArriereGryfondor () ; Bonne maison (Gryffondor)
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel adroit)
+        (type extraverti)
+        (milieu bourgeois)
+        (humeur joyeux)
+    ))
+    (moteur_arriere '(maison Gryffondor))
+)
+
+(defun scenarioArriereSerpentard () ; Bonne maison (Serpentard)
+    (setq *BF* '(
+        (baguette surreau)
+        (naturel adroit)
+        (type extraverti)
+        (milieu bourgeois)
+        (humeur triste)
+    ))
+    (moteur_arriere '(maison Serpentard))
+)
+
+(defun scenarioArriereHagrid () ; Bonne maison (Hagrid)
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel curieux)
+        (type introverti)
+        (milieu populaire)
+        (humeur joyeux)
+    ))
+    (moteur_arriere '(maison Hagrid))
+)
+
+(defun scenarioArriereErreur () ; Mauvaise maison
+    (setq *BF* '(
+        (baguette chaine)
+        (naturel adroit)
+        (type extraverti)
+        (milieu populaire)
+        (humeur joyeux)
+    ))
+    (moteur_arriere '(maison Serpentard))
+)
+
+(defun tests ()
+    (scenarioAvantPoufsouffle)
+    (scenarioAvantSerdaigle)
+    (scenarioAvantGryffondor)
+    (scenarioAvantSerpentard)
+    (scenarioAvantHagrid)
+    (scenarioAvantVoldemort)
+
+    (scenarioArrierePoufsouffle)
+    (scenarioArriereSerdaigle)
+    (scenarioArriereGryfondor)
+    (scenarioArriereSerpentard)
+    (scenarioArriereHagrid)
+    (scenarioArriereErreur)
+)
+
+(tests)
+
+; (AffichageMenu)
+
+
